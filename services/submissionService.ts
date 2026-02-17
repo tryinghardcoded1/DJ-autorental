@@ -13,9 +13,9 @@ import {
   orderBy,
   where
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { db } from "../lib/firebase";
-import { supabase } from "../lib/supabase";
-import { FormData, ContactFormData, Vehicle, Lead, UserProfile, SmsTemplate, EmailTemplate, SystemSettings } from "../types";
+import { db } from "../lib/firebase.ts";
+import { supabase } from "../lib/supabase.ts";
+import { FormData, ContactFormData, Vehicle, Lead, UserProfile, SmsTemplate, EmailTemplate, SystemSettings } from "../types.ts";
 
 // Helper for Mock Persistence
 const getMockData = (key: string) => JSON.parse(localStorage.getItem(`mock_${key}`) || '[]');

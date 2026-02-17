@@ -10,11 +10,11 @@ import {
   SmsTemplate, 
   EmailTemplate, 
   SystemSettings 
-} from './types';
-import { StepWizard } from './components/StepWizard';
-import { Input, Select, FileUpload, Checkbox } from './components/InputFields';
-import { AddressAutocomplete } from './components/AddressAutocomplete';
-import { SignaturePad } from './components/SignaturePad';
+} from './types.ts';
+import { StepWizard } from './components/StepWizard.tsx';
+import { Input, Select, FileUpload, Checkbox } from './components/InputFields.tsx';
+import { AddressAutocomplete } from './components/AddressAutocomplete.tsx';
+import { SignaturePad } from './components/SignaturePad.tsx';
 import { 
   submitApplication, 
   submitContactInquiry, 
@@ -38,8 +38,8 @@ import {
   saveEmailTemplate, 
   getSystemSettings, 
   saveSystemSettings 
-} from './services/submissionService';
-import { auth as firebaseAuth } from './lib/firebase';
+} from './services/submissionService.ts';
+import { auth as firebaseAuth } from './lib/firebase.ts';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
   Car, 
@@ -875,145 +875,206 @@ export default function App() {
   );
 
   const ContactView = () => (
-    <div className="animate-fadeIn max-w-4xl mx-auto py-20 px-4">
-        <div className="text-center mb-16">
-            <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900">CONTACT <span className="text-red-600">SUPPORT</span></h2>
-            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">We are here to help</p>
-        </div>
+    <div className="max-w-6xl mx-auto mt-12 px-6 pb-20 animate-fadeIn flex-grow w-full">
+      <div className="text-center mb-16">
+        <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900">CONTACT <span className="text-red-600">SUPPORT</span></h2>
+        <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">We're here to help 24/7</p>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-            <div className="bg-slate-950 text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
-                <div className="relative z-10 space-y-8">
-                    <div>
-                        <h3 className="text-xl font-black uppercase tracking-widest mb-1">San Antonio HQ</h3>
-                        <p className="text-slate-400 text-sm">{CONTACT_ADDRESS}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div className="space-y-8">
+            <div className="bg-slate-950 text-white p-10 rounded-[2rem] shadow-xl">
+                <h3 className="text-xl font-black uppercase mb-8">Get in Touch</h3>
+                <div className="space-y-8 text-sm font-medium text-slate-300">
+                    <div className="flex items-center gap-6">
+                        <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-red-500 shadow-inner"><Phone size={24}/></div>
+                        <div>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Call Us</p>
+                            <a href={`tel:${CONTACT_PHONE.replace(/\D/g,'')}`} className="text-white text-lg font-bold hover:text-red-500 transition-colors">{CONTACT_PHONE}</a>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="text-xl font-black uppercase tracking-widest mb-1">Direct Line</h3>
-                        <p className="text-slate-400 text-sm">{CONTACT_PHONE}</p>
-                        <p className="text-slate-500 text-xs mt-1">Mon-Fri: 9am - 6pm</p>
+                    <div className="flex items-center gap-6">
+                        <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-red-500 shadow-inner"><Mail size={24}/></div>
+                        <div>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Email Us</p>
+                            <a href="mailto:support@djautofleet.com" className="text-white text-lg font-bold hover:text-red-500 transition-colors">support@djautofleet.com</a>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="text-xl font-black uppercase tracking-widest mb-1">Email</h3>
-                        <p className="text-slate-400 text-sm">support@djautofleet.com</p>
+                    <div className="flex items-center gap-6">
+                        <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-red-500 shadow-inner"><MapPin size={24}/></div>
+                        <div>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Visit Us</p>
+                            <p className="text-white text-lg font-bold leading-tight">{CONTACT_ADDRESS}</p>
+                        </div>
                     </div>
                 </div>
-                {/* Decorative circle */}
-                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-red-600 rounded-full blur-3xl opacity-20"></div>
             </div>
-
-            <div className="bg-white p-8 rounded-3xl shadow-lg border border-slate-100">
-                {contactSubmitted ? (
-                    <div className="text-center py-10 space-y-6">
-                        <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto"><CheckCircle2 size={32} /></div>
-                        <h3 className="text-2xl font-black uppercase">Message Sent</h3>
-                        <p className="text-slate-500">Thank you for contacting us. We will respond shortly.</p>
-                        <button onClick={() => setView('home')} className="text-red-600 font-bold text-sm uppercase hover:underline">Return Home</button>
-                    </div>
-                ) : (
-                    <form onSubmit={handleContactSubmit} className="space-y-6">
-                        <Input label="Your Name" value={contactData.name} onChange={e => setContactData({...contactData, name: e.target.value})} required />
-                        <Input label="Email Address" type="email" value={contactData.email} onChange={e => setContactData({...contactData, email: e.target.value})} required />
-                        <Input label="Phone Number" value={contactData.phone} onChange={e => setContactData({...contactData, phone: e.target.value})} required />
-                        <Select label="Subject" value={contactData.subject} onChange={e => setContactData({...contactData, subject: e.target.value})} options={[{value:'General Inquiry',label:'General Inquiry'},{value:'Rental Availability',label:'Rental Availability'},{value:'Maintenance Request',label:'Maintenance Request'},{value:'Billing',label:'Billing'}]} />
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                            <textarea 
-                                className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white h-32"
-                                value={contactData.message}
-                                onChange={e => setContactData({...contactData, message: e.target.value})}
-                                required
-                            />
-                        </div>
-                        <button type="submit" disabled={isSubmitting} className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-xl flex items-center justify-center gap-2">
-                            {isSubmitting ? <Loader2 className="animate-spin" /> : <>Send Message <Send size={16} /></>}
-                        </button>
-                    </form>
-                )}
+            
+            <div className="p-8 bg-red-50 rounded-[2rem] border border-red-100">
+                <h4 className="font-black text-red-800 uppercase mb-2 flex items-center gap-2"><AlertCircle size={20}/> Urgent Assistance?</h4>
+                <p className="text-red-700/80 text-sm leading-relaxed">
+                    For roadside assistance or accidents, please call 911 immediately if there are injuries. For vehicle issues, call our 24/7 fleet support line directly.
+                </p>
             </div>
         </div>
+
+        <div className="bg-white p-8 md:p-10 rounded-[2rem] shadow-xl border border-slate-100">
+            {contactSubmitted ? (
+                <div className="text-center py-16">
+                    <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm"><CheckCircle2 size={40}/></div>
+                    <h3 className="text-2xl font-black uppercase text-slate-900 mb-2">Message Sent</h3>
+                    <p className="text-slate-500 font-medium mb-8">Thank you for contacting us. We will respond within 24 hours.</p>
+                    <button onClick={() => setContactSubmitted(false)} className="px-8 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-black uppercase tracking-widest transition-colors">
+                        Send Another Message
+                    </button>
+                </div>
+            ) : (
+                <form onSubmit={handleContactSubmit} className="space-y-6">
+                    <div>
+                        <h3 className="text-2xl font-black uppercase text-slate-900 mb-6">Send Message</h3>
+                        <div className="space-y-5">
+                            <Input label="Your Name" value={contactData.name} onChange={e => setContactData({...contactData, name: e.target.value})} required placeholder="John Doe" />
+                            <Input label="Email Address" type="email" value={contactData.email} onChange={e => setContactData({...contactData, email: e.target.value})} required placeholder="john@example.com" />
+                            <Input label="Phone Number" value={contactData.phone} onChange={e => setContactData({...contactData, phone: e.target.value})} placeholder="(210) 555-0123" />
+                            <Select label="Topic" value={contactData.subject} onChange={e => setContactData({...contactData, subject: e.target.value})} options={[
+                                {value: 'General Inquiry', label: 'General Inquiry'},
+                                {value: 'Vehicle Availability', label: 'Vehicle Availability / Fleet'},
+                                {value: 'Maintenance', label: 'Maintenance Request'},
+                                {value: 'Billing', label: 'Billing / Payments'},
+                                {value: 'Emergency', label: 'Emergency / Accident'}
+                            ]} />
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                                <textarea 
+                                    className="w-full h-32 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-slate-50 resize-none transition-all"
+                                    value={contactData.message}
+                                    onChange={e => setContactData({...contactData, message: e.target.value})}
+                                    required
+                                    placeholder="How can we help you?"
+                                ></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" disabled={isSubmitting} className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-2 transform active:scale-95">
+                        {isSubmitting ? <Loader2 className="animate-spin" /> : <>Send Message <Send size={16}/></>}
+                    </button>
+                </form>
+            )}
+        </div>
+      </div>
     </div>
   );
 
   const ProfileView = () => {
-    const [userApps, setUserApps] = useState<any[]>([]);
+    const [myApps, setMyApps] = useState<any[]>([]);
     const [loadingApps, setLoadingApps] = useState(true);
 
     useEffect(() => {
-        const fetchApps = async () => {
-            if (currentUser) {
-                const apps = await getUserApplications(currentUser.uid, currentUser.email);
-                setUserApps(apps);
-            }
-            setLoadingApps(false);
-        };
-        fetchApps();
+        if (currentUser) {
+            getUserApplications(currentUser.uid, currentUser.email).then(data => {
+                setMyApps(data);
+                setLoadingApps(false);
+            });
+        }
     }, [currentUser]);
 
-    if (!profile) return <div className="flex justify-center items-center h-screen"><Loader2 className="animate-spin" /></div>;
+    if (!profile) return <div className="flex justify-center items-center h-[50vh]"><Loader2 className="animate-spin text-slate-300" size={40} /></div>;
 
     return (
-        <div className="max-w-4xl mx-auto py-12 px-6 animate-fadeIn">
-            <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden mb-8">
-                <div className="bg-slate-950 p-8 text-white flex justify-between items-center">
-                    <div>
-                        <h2 className="text-2xl font-black uppercase tracking-widest">My Profile</h2>
-                        <p className="text-slate-400 text-xs font-mono mt-1">ID: {profile.uid}</p>
-                    </div>
-                    <button onClick={handleLogout} className="text-red-500 hover:text-white transition-colors flex items-center gap-2 text-xs font-bold uppercase">
-                        <LogOut size={16} /> Logout
-                    </button>
-                </div>
-                <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Full Name</label>
-                        <p className="text-lg font-bold text-slate-900">{profile.fullName}</p>
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Email Address</label>
-                        <p className="text-lg font-bold text-slate-900">{profile.email}</p>
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Phone Number</label>
-                        <p className="text-lg font-bold text-slate-900">{profile.phone || 'N/A'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Account Role</label>
-                        <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold uppercase">{profile.role}</span>
-                    </div>
-                </div>
-            </div>
-
-            <h3 className="text-xl font-black uppercase text-slate-900 mb-6 flex items-center gap-2"><LayoutDashboard size={20} /> My Applications</h3>
-            
-            {loadingApps ? (
-                <div className="text-center py-10"><Loader2 className="animate-spin mx-auto text-slate-300" /></div>
-            ) : userApps.length === 0 ? (
-                <div className="bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-10 text-center">
-                    <p className="text-slate-500 mb-4">You haven't submitted any applications yet.</p>
-                    <button onClick={() => setView('application')} className="bg-red-600 text-white px-6 py-3 rounded-xl font-black uppercase text-xs shadow-lg hover:bg-red-700">Start Application</button>
-                </div>
-            ) : (
-                <div className="space-y-4">
-                    {userApps.map(app => (
-                        <div key={app.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div>
-                                <h4 className="font-black text-slate-900 text-lg">{app.carRequested}</h4>
-                                <p className="text-sm text-slate-500">Submitted on {app.createdAt?.seconds ? new Date(app.createdAt.seconds * 1000).toLocaleDateString() : (app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'N/A')}</p>
+        <div className="max-w-5xl mx-auto mt-12 px-6 pb-20 animate-fadeIn flex-grow w-full">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-200 overflow-hidden mb-8">
+                {/* Profile Header */}
+                <div className="bg-slate-950 p-10 md:p-14 text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-red-600 rounded-full blur-[100px] opacity-20 -mr-20 -mt-20"></div>
+                    
+                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                        <div className="w-28 h-28 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center text-4xl font-black shadow-2xl border-4 border-slate-900 text-white">
+                            {profile.fullName.charAt(0)}
+                        </div>
+                        <div className="text-center md:text-left space-y-2">
+                            <h2 className="text-4xl font-black uppercase tracking-tighter">{profile.fullName}</h2>
+                            <div className="flex flex-col md:flex-row gap-2 md:gap-4 text-slate-400 text-sm font-medium">
+                                <span className="flex items-center gap-1"><Mail size={14}/> {profile.email}</span>
+                                {profile.phone && <span className="flex items-center gap-1"><Phone size={14}/> {profile.phone}</span>}
                             </div>
-                            <div className="flex items-center gap-4">
-                                <span className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider ${
-                                    app.status === 'approved' ? 'bg-green-100 text-green-700' : 
-                                    app.status === 'rejected' ? 'bg-red-100 text-red-700' : 
-                                    'bg-yellow-100 text-yellow-700'
-                                }`}>
-                                    {app.status}
+                            <div className="pt-2">
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${profile.role === 'admin' ? 'bg-red-900/30 border-red-500/50 text-red-400' : 'bg-blue-900/30 border-blue-500/50 text-blue-400'}`}>
+                                    {profile.role === 'admin' ? <ShieldAlert size={12}/> : <CheckCircle2 size={12}/>}
+                                    {profile.role === 'admin' ? 'Administrator' : 'Verified Driver'}
                                 </span>
                             </div>
                         </div>
-                    ))}
+                        <div className="md:ml-auto">
+                             <button onClick={handleLogout} className="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-2 hover:border-white/30">
+                                <LogOut size={16}/> Sign Out
+                             </button>
+                        </div>
+                    </div>
                 </div>
-            )}
+                
+                <div className="p-8 md:p-12 bg-slate-50/50">
+                    <div className="flex items-center justify-between mb-8">
+                        <h3 className="text-xl font-black uppercase text-slate-900 flex items-center gap-3">
+                            <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-red-600"><FileText size={20} /></div>
+                             My Applications
+                        </h3>
+                        {myApps.length > 0 && (
+                             <button onClick={() => setView('application')} className="hidden md:flex bg-slate-950 text-white px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-slate-800 items-center gap-2 transition-colors">
+                                <Plus size={14}/> New Application
+                             </button>
+                        )}
+                    </div>
+                    
+                    {loadingApps ? (
+                        <div className="text-center py-20"><Loader2 className="animate-spin mx-auto text-slate-300" size={32} /></div>
+                    ) : myApps.length === 0 ? (
+                        <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-300">
+                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300"><FileText size={32}/></div>
+                            <p className="text-slate-500 font-medium mb-6">You haven't submitted any rental applications yet.</p>
+                            <button onClick={() => setView('application')} className="bg-red-600 text-white px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-red-700 shadow-lg transition-all">
+                                Start New Application
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="grid gap-4">
+                            {myApps.map(app => (
+                                <div key={app.id} className="bg-white border border-slate-200 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-6 hover:shadow-lg transition-all group">
+                                    <div className="flex items-center gap-6 w-full md:w-auto">
+                                        <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
+                                            <Car size={28} />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-slate-900 text-lg">{app.carRequested}</h4>
+                                            <div className="flex items-center gap-3 text-xs text-slate-500 font-medium mt-1">
+                                                <span className="flex items-center gap-1"><Clock size={12}/> {new Date(app.createdAt.seconds ? app.createdAt.seconds * 1000 : app.createdAt).toLocaleDateString()}</span>
+                                                <span>•</span>
+                                                <span className="uppercase">{app.rentalProgram === 'rent-to-own' ? 'Rent-To-Own' : 'Standard Rental'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between w-full md:w-auto gap-6 pl-22 md:pl-0">
+                                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wide border ${
+                                            app.status === 'approved' ? 'bg-green-50 text-green-600 border-green-200' : 
+                                            app.status === 'rejected' ? 'bg-red-50 text-red-600 border-red-200' : 
+                                            'bg-yellow-50 text-yellow-600 border-yellow-200'
+                                        }`}>
+                                            {app.status}
+                                        </span>
+                                        {app.status === 'approved' && (
+                                            <button className="text-xs font-bold text-slate-400 hover:text-blue-600 flex items-center gap-1 transition-colors">
+                                                Details <ChevronRight size={14}/>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                            <div className="mt-4 text-center md:hidden">
+                                <button onClick={() => setView('application')} className="text-red-600 font-black text-xs uppercase tracking-wider">Start New Application</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
   };
