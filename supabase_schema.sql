@@ -1,5 +1,5 @@
 
--- 1. Create table for Contact Form Inquiries (Leads)
+-- TABLE 1: CONTACT FORM LEADS
 CREATE TABLE IF NOT EXISTS leads (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
@@ -11,13 +11,13 @@ CREATE TABLE IF NOT EXISTS leads (
     source TEXT DEFAULT 'website_contact'
 );
 
--- 2. Create table for Car Rental Applications (Bookings)
+-- TABLE 2: CAR RENTAL BOOKINGS
 CREATE TABLE IF NOT EXISTS bookings (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     status TEXT DEFAULT 'pending',
     
-    -- Applicant Personal Details
+    -- APPLICANT DETAILS
     full_name TEXT,
     email TEXT,
     phone TEXT,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     address TEXT,
     license_number TEXT,
     
-    -- Vehicle Details (Snapshot of vehicle at time of booking)
+    -- VEHICLE SNAPSHOT
     vehicle_id TEXT,
     vehicle_make TEXT,
     vehicle_model TEXT,
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     vehicle_image_url TEXT,
     weekly_rent NUMERIC,
     
-    -- Rental Specifics
+    -- RENTAL DETAILS
     rental_program TEXT,
     target_platform TEXT,
     usage_type TEXT,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     end_date TEXT,
     payment_method TEXT,
     
-    -- Insurance & History
+    -- INSURANCE & HISTORY
     has_insurance TEXT,
     insurance_company TEXT,
     policy_number TEXT,
@@ -49,19 +49,19 @@ CREATE TABLE IF NOT EXISTS bookings (
     history_dui TEXT,
     history_suspension TEXT,
     
-    -- Metadata
-    user_id TEXT, -- Link to Firebase Auth UID if exists
+    -- SYSTEM METADATA
+    user_id TEXT,
     source TEXT DEFAULT 'organic'
 );
 
--- 3. Security Policies (Row Level Security)
+-- SECURITY POLICIES
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
 
--- Allow anyone to submit a form (Insert)
-CREATE POLICY "Enable insert for public" ON leads FOR INSERT WITH CHECK (true);
-CREATE POLICY "Enable insert for public" ON bookings FOR INSERT WITH CHECK (true);
+-- Allow public inserts
+CREATE POLICY "Enable insert for public leads" ON leads FOR INSERT WITH CHECK (true);
+CREATE POLICY "Enable insert for public bookings" ON bookings FOR INSERT WITH CHECK (true);
 
--- Allow reading data (Update this to restricted in production)
-CREATE POLICY "Enable read for public" ON leads FOR SELECT USING (true);
-CREATE POLICY "Enable read for public" ON bookings FOR SELECT USING (true);
+-- Allow public reads (Note: Restrict this in production)
+CREATE POLICY "Enable read for public leads" ON leads FOR SELECT USING (true);
+CREATE POLICY "Enable read for public bookings" ON bookings FOR SELECT USING (true);

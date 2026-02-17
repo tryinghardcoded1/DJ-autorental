@@ -36,9 +36,32 @@ const isFirebaseActive = () => {
 // --- VEHICLE / FLEET SERVICES ---
 
 const INITIAL_MOCK_FLEET: Vehicle[] = [
-    { id: 'v1', make: 'Toyota', model: 'Camry SE', year: '2023', color: 'Midnight Black', vin: 'SAMPLE123456', plate: 'TX-5599', status: 'available', weeklyRent: 350, imageUrl: 'https://images.unsplash.com/photo-1621007947382-bb3c3968e3bb?auto=format&fit=crop&q=80&w=800' },
-    { id: 'v2', make: 'Honda', model: 'Accord Sport', year: '2022', color: 'Sonic Gray', vin: 'SAMPLE987654', plate: 'TX-1122', status: 'rented', weeklyRent: 375, imageUrl: 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?auto=format&fit=crop&q=80&w=800' },
-    { id: 'v3', make: 'Hyundai', model: 'Elantra', year: '2024', color: 'White', vin: 'SAMPLE111222', plate: 'TX-3344', status: 'available', weeklyRent: 320, imageUrl: 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&q=80&w=800' },
+    { 
+        id: 'v1', 
+        make: 'Ford', 
+        model: 'Fusion', 
+        year: '2017', 
+        color: 'Black', 
+        vin: 'SAMPLE_FUSION_17', 
+        plate: 'TX-RIDE1', 
+        status: 'available', 
+        weeklyRent: 400, 
+        imageUrl: 'https://i.ytimg.com/vi/q49cMgR56RE/maxresdefault.jpg',
+        features: ['Rent-to-Own Available', 'UberX Ready', 'Bluetooth']
+    },
+    { 
+        id: 'v2', 
+        make: 'Kia', 
+        model: 'Optima', 
+        year: '2014', 
+        color: 'Gray', 
+        vin: 'SAMPLE_OPTIMA_14', 
+        plate: 'TX-RIDE2', 
+        status: 'available', 
+        weeklyRent: 350, 
+        imageUrl: 'https://www.thecubiclechick.com/wp-content/uploads/2014/04/2014-Kia-Optima-SX-Limited.jpg',
+        features: ['Rent-to-Own Available', 'Great MPG', 'Budget Friendly']
+    }
 ];
 
 export const getVehicles = async (): Promise<Vehicle[]> => {

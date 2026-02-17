@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { 
   INITIAL_DATA, 
@@ -77,6 +78,8 @@ import {
 
 const LOGO_URL = "https://djautofleet.com/wp-content/uploads/2026/02/Untitled-design-e1770786148880.gif";
 const STEPS = ["Personal", "License", "Vehicle", "Agreements"];
+const CONTACT_PHONE = "(210) 390-6135";
+const CONTACT_ADDRESS = "5072 Timberhill Drive, San Antonio, TX";
 
 export default function App() {
   const [view, setView] = useState<'home' | 'application' | 'admin' | 'login' | 'profile' | 'contact'>('home');
@@ -206,6 +209,13 @@ export default function App() {
             <p className="text-[9px] text-red-500 font-bold tracking-widest uppercase">San Antonio Fleet</p>
           </div>
         </div>
+
+        {/* Header Phone Display */}
+        <a href={`tel:${CONTACT_PHONE.replace(/\D/g,'')}`} className="hidden lg:flex items-center gap-2 bg-slate-900 border border-slate-800 px-4 py-2 rounded-full hover:bg-slate-800 transition-colors group">
+            <Phone size={14} className="text-red-500 group-hover:animate-pulse" />
+            <span className="text-xs font-black tracking-widest text-slate-300 group-hover:text-white">{CONTACT_PHONE}</span>
+        </a>
+
         <div className="flex items-center gap-4 md:gap-8 text-[10px] font-black uppercase tracking-widest">
           <button onClick={() => setView('home')} className={`hover:text-red-500 transition-colors ${view === 'home' ? 'text-red-500' : 'text-slate-400'}`}>Home</button>
           <button onClick={() => setView('application')} className={`hover:text-red-500 transition-colors ${view === 'application' ? 'text-red-500' : 'text-slate-400'}`}>Apply</button>
@@ -760,146 +770,32 @@ export default function App() {
     );
   };
 
-  // Re-use previous HomeView, ContactView, ProfileView...
-  const ProfileView = () => {
-    const [userApps, setUserApps] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const load = async () => {
-            if (currentUser) {
-                const data = await getUserApplications(currentUser.uid, currentUser.email);
-                setUserApps(data);
-            }
-            setLoading(false);
-        };
-        load();
-    }, [currentUser]);
-
-    return (
-        <div className="min-h-screen bg-slate-50 p-6 animate-fadeIn">
-            <div className="max-w-4xl mx-auto">
-                 <div className="flex justify-between items-center mb-8">
-                    <div>
-                        <h2 className="text-3xl font-black text-slate-900 uppercase">Driver Portal</h2>
-                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Welcome, {profile?.fullName || currentUser?.email}</p>
-                    </div>
-                    <button onClick={handleLogout} className="bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-slate-100 flex items-center gap-2">
-                        <LogOut size={14} /> Logout
-                    </button>
-                </div>
-
-                <div className="grid gap-6">
-                    <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
-                        <h3 className="text-lg font-black uppercase text-slate-800 mb-6 flex items-center gap-2"><FileText className="text-red-600"/> Application Status</h3>
-                        
-                        {loading ? (
-                             <div className="text-center py-8"><Loader2 className="animate-spin mx-auto text-slate-300" /></div>
-                        ) : userApps.length === 0 ? (
-                             <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                <AlertCircle className="mx-auto text-slate-300 mb-2" size={32} />
-                                <p className="text-slate-500 font-medium">No active applications found.</p>
-                                <button onClick={() => setView('application')} className="mt-4 text-red-600 font-bold text-xs uppercase hover:underline">Start New Application</button>
-                             </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {userApps.map(app => (
-                                    <div key={app.id} className="border border-slate-100 rounded-2xl p-6 flex items-center justify-between hover:shadow-md transition-all bg-white">
-                                        <div>
-                                            <div className="flex items-center gap-3 mb-1">
-                                                <span className="font-bold text-slate-900">{app.rentalProgram === 'rent-to-own' ? 'Rent-To-Own' : 'Standard Rental'}</span>
-                                                <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold uppercase">{app.carRequested || 'Vehicle Pending'}</span>
-                                            </div>
-                                            <p className="text-xs text-slate-400">Submitted on {app.createdAt?.seconds ? new Date(app.createdAt.seconds * 1000).toLocaleDateString() : 'Recent'}</p>
-                                        </div>
-                                        <div>
-                                             {app.status === 'approved' && (
-                                                <div className="flex flex-col items-end">
-                                                    <span className="flex items-center gap-1 text-green-600 font-black uppercase text-sm"><CheckCircle2 size={16}/> Approved</span>
-                                                    <span className="text-[10px] text-green-600/70 font-bold">Ready for Pickup</span>
-                                                </div>
-                                             )}
-                                             {app.status === 'pending' && (
-                                                <div className="flex flex-col items-end">
-                                                    <span className="flex items-center gap-1 text-yellow-600 font-black uppercase text-sm"><Clock size={16}/> Under Review</span>
-                                                    <span className="text-[10px] text-yellow-600/70 font-bold">Est. 2-4 Hours</span>
-                                                </div>
-                                             )}
-                                             {app.status === 'rejected' && (
-                                                <div className="flex flex-col items-end">
-                                                    <span className="flex items-center gap-1 text-red-600 font-black uppercase text-sm"><XCircle size={16}/> Declined</span>
-                                                    <span className="text-[10px] text-red-600/70 font-bold">Contact Support</span>
-                                                </div>
-                                             )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-  };
-
-  const ContactView = () => (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 animate-fadeIn">
-        <div className="max-w-lg w-full bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100 my-8">
-            <div className="bg-slate-950 p-8 text-center relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-red-900"></div>
-                <img src={LOGO_URL} className="h-16 mx-auto mb-4 object-contain" alt="DJ Auto Rental" />
-                <h2 className="text-2xl font-black text-white uppercase tracking-tighter">DJ AUTO RENTAL</h2>
-                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] mt-2">Professional Fleet Support</p>
-            </div>
-            
-            <div className="p-8 md:p-10">
-                {contactSubmitted ? (
-                     <div className="text-center py-8 space-y-6">
-                        <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-                            <CheckCircle2 size={40} />
-                        </div>
-                        <h4 className="text-xl font-black uppercase text-slate-800">Inquiry Received</h4>
-                        <p className="text-slate-500 text-sm leading-relaxed">Thank you for contacting DJ Auto Rental. Our fleet management team has received your message and will respond shortly.</p>
-                        <button onClick={() => setView('home')} className="mt-4 text-red-600 font-bold text-xs uppercase tracking-widest hover:text-red-700 transition-colors">Return to Home</button>
-                    </div>
-                ) : (
-                    <form onSubmit={handleContactSubmit} className="space-y-5">
-                         {/* Form fields same as before... omitting for brevity in this update snippet, will render fully in final output */}
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Full Name</label>
-                            <Input label="" value={contactData.name} onChange={e=>setContactData({...contactData, name:e.target.value})} placeholder="Enter your name" required />
-                        </div>
-                         <div className="grid grid-cols-2 gap-4">
-                            <Input label="Phone" value={contactData.phone} onChange={e=>setContactData({...contactData, phone:e.target.value})} placeholder="(210)..." required />
-                            <Input label="Email" value={contactData.email} onChange={e=>setContactData({...contactData, email:e.target.value})} placeholder="email@..." required />
-                        </div>
-                        <Select label="Subject" value={contactData.subject} onChange={e=>setContactData({...contactData, subject:e.target.value})} options={[{value:'General',label:'General Inquiry'},{value:'Support',label:'Support'}]} />
-                         <div className="space-y-1">
-                            <label className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Message</label>
-                            <textarea className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-sm outline-none h-32" value={contactData.message} onChange={e=>setContactData({...contactData, message:e.target.value})} placeholder="Message..." required />
-                        </div>
-                        <button type="submit" disabled={isSubmitting} className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg flex items-center justify-center gap-2">
-                             {isSubmitting ? <Loader2 className="animate-spin" /> : <><Send size={16}/> Send Message</>}
-                        </button>
-                    </form>
-                )}
-            </div>
-        </div>
-    </div>
-  );
-
   const HomeView = () => (
     <div className="animate-fadeIn">
       {/* Hero Section */}
-      <section className="relative bg-slate-950 text-white pt-24 pb-32 overflow-hidden flex flex-col items-center">
+      <section className="relative bg-slate-950 text-white pt-32 pb-40 overflow-hidden flex flex-col items-center min-h-[80vh] justify-center">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+            <img 
+                src="https://www.cnet.com/a/img/resize/c15c1cd3ff178b55ea49c81017affac5024b45a1/hub/2014/06/09/d766dd95-3c1a-48b7-aba8-e1c9e0890a5f/2014fordfusionenergi-000.jpg?auto=webp&width=768" 
+                className="w-full h-full object-cover opacity-60" 
+                alt="Hero Background" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-900/40"></div>
+        </div>
+
         <div className="max-w-7xl mx-auto px-6 relative z-20 text-center">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="inline-flex items-center gap-2 bg-red-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-red-900/30">
               <MapPin size={12}/> San Antonio, Texas
             </div>
-            <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.85]">ELEVATE YOUR <br/><span className="text-red-600 italic">EARNINGS.</span></h2>
-            <p className="text-xl text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed">Join San Antonio's premier fleet provider. Rideshare-ready units with insurance included and exclusive rent-to-own programs.</p>
+            <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.85]">
+                RENT TO <span className="text-red-600 italic">OWN.</span><br/>DRIVE TO <span className="text-blue-500 italic">EARN.</span>
+            </h2>
+            <p className="text-xl text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed">
+                San Antonio's #1 <strong className="text-white">Rent-to-Own</strong> Program & <strong className="text-white">Rideshare Rental</strong> Fleet. 
+                <br/>No Credit Checks. Instant Approval.
+            </p>
             <div className="flex flex-wrap justify-center gap-4 pt-4">
               <button onClick={() => setView('application')} className="bg-red-600 hover:bg-red-700 text-white px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl transition-all hover:scale-105 flex items-center gap-3">Start Application <ArrowUpRight size={20}/></button>
               <button onClick={() => setView('contact')} className="bg-white text-slate-950 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all hover:scale-105 shadow-xl inline-block">Speak to Sales</button>
@@ -907,20 +803,65 @@ export default function App() {
           </div>
         </div>
       </section>
+
+      {/* Featured Fleet Section */}
+      <section className="py-20 px-6 max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+            <h3 className="text-4xl font-black text-slate-950 uppercase tracking-tighter">FEATURED <span className="text-red-600">VEHICLES</span></h3>
+            <p className="text-slate-500 mt-2">Ready for immediate pickup. Insurance included.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
+            {/* Card 1: Kia Optima */}
+            <div className="group bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-100 hover:shadow-2xl transition-all hover:-translate-y-1">
+                <div className="h-64 overflow-hidden relative">
+                    <img src="https://www.thecubiclechick.com/wp-content/uploads/2014/04/2014-Kia-Optima-SX-Limited.jpg" alt="Kia Optima" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-sm font-black text-slate-900 uppercase tracking-wider shadow-lg">$350/wk</div>
+                </div>
+                <div className="p-8">
+                    <h4 className="text-2xl font-black text-slate-900 mb-1">2014 Kia Optima</h4>
+                    <p className="text-slate-500 font-medium text-sm mb-6">Gray • Rent-to-Own Available</p>
+                    <ul className="space-y-2 mb-8">
+                        <li className="flex items-center gap-2 text-sm text-slate-600"><CheckCircle2 size={16} className="text-green-500"/> Budget Friendly Choice</li>
+                        <li className="flex items-center gap-2 text-sm text-slate-600"><CheckCircle2 size={16} className="text-green-500"/> Perfect for DoorDash / Delivery</li>
+                        <li className="flex items-center gap-2 text-sm text-slate-600"><CheckCircle2 size={16} className="text-green-500"/> Insurance Included</li>
+                    </ul>
+                    <button onClick={() => setView('application')} className="w-full bg-slate-950 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-red-600 transition-colors">Rent This Car</button>
+                </div>
+            </div>
+
+            {/* Card 2: Ford Fusion */}
+            <div className="group bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-100 hover:shadow-2xl transition-all hover:-translate-y-1">
+                <div className="h-64 overflow-hidden relative">
+                    <img src="https://i.ytimg.com/vi/q49cMgR56RE/maxresdefault.jpg" alt="Ford Fusion" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-sm font-black text-slate-900 uppercase tracking-wider shadow-lg">$400/wk</div>
+                </div>
+                <div className="p-8">
+                    <h4 className="text-2xl font-black text-slate-900 mb-1">2017 Ford Fusion</h4>
+                    <p className="text-slate-500 font-medium text-sm mb-6">Black • Rent-to-Own Available</p>
+                    <ul className="space-y-2 mb-8">
+                        <li className="flex items-center gap-2 text-sm text-slate-600"><CheckCircle2 size={16} className="text-green-500"/> UberX & Lyft Standard Approved</li>
+                        <li className="flex items-center gap-2 text-sm text-slate-600"><CheckCircle2 size={16} className="text-green-500"/> Bluetooth & Backup Camera</li>
+                        <li className="flex items-center gap-2 text-sm text-slate-600"><CheckCircle2 size={16} className="text-green-500"/> Rent-To-Own Available</li>
+                    </ul>
+                    <button onClick={() => setView('application')} className="w-full bg-slate-950 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-red-600 transition-colors">Rent This Car</button>
+                </div>
+            </div>
+        </div>
+      </section>
+
       {/* Services Section */}
-      <section className="py-24 px-6 max-w-7xl mx-auto bg-white">
+      <section className="py-24 px-6 max-w-7xl mx-auto bg-slate-50">
         <div className="text-center mb-16">
-          <h3 className="text-4xl md:text-5xl font-black text-slate-950 uppercase tracking-tighter">FLEET <span className="text-red-600">SERVICES</span></h3>
+          <h3 className="text-4xl md:text-5xl font-black text-slate-950 uppercase tracking-tighter">OUR <span className="text-red-600">SERVICES</span></h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Service items omitted for brevity, same as original */}
            {[
-            { icon: <Car />, title: "Rideshare Units", desc: "Uber/Lyft ready late-model vehicles." },
-            { icon: <Zap />, title: "Rent-To-Own", desc: "Turn your daily rental into asset ownership." },
-            { icon: <Shield />, title: "Full Insurance", desc: "Comprehensive commercial coverage included." },
-            { icon: <Clock />, title: "24/7 Roadside", desc: "Maintenance & accident support always on." }
+            { icon: <Car />, title: "Rideshare Units", desc: "Uber, Lyft, and DoorDash ready vehicles. Get approved instantly." },
+            { icon: <Zap />, title: "Rent-To-Own", desc: "Stop renting forever. Our program puts you on the path to ownership." },
+            { icon: <Shield />, title: "Full Insurance", desc: "Comprehensive commercial coverage included in your weekly rate." },
+            { icon: <Clock />, title: "24/7 Support", desc: "Local San Antonio team ready to assist with maintenance." }
           ].map((item, i) => (
-            <div key={i} className="p-10 bg-slate-50 rounded-[3rem] border border-slate-100 hover:shadow-xl transition-all group">
+            <div key={i} className="p-10 bg-white rounded-[3rem] border border-slate-200 hover:shadow-xl transition-all group">
               <div className="w-16 h-16 bg-slate-950 text-white rounded-3xl flex items-center justify-center mb-8 group-hover:bg-red-600 transition-colors shadow-lg">
                 {React.cloneElement(item.icon as React.ReactElement<any>, { size: 32 })}
               </div>
@@ -932,6 +873,150 @@ export default function App() {
       </section>
     </div>
   );
+
+  const ContactView = () => (
+    <div className="animate-fadeIn max-w-4xl mx-auto py-20 px-4">
+        <div className="text-center mb-16">
+            <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900">CONTACT <span className="text-red-600">SUPPORT</span></h2>
+            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">We are here to help</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+            <div className="bg-slate-950 text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
+                <div className="relative z-10 space-y-8">
+                    <div>
+                        <h3 className="text-xl font-black uppercase tracking-widest mb-1">San Antonio HQ</h3>
+                        <p className="text-slate-400 text-sm">{CONTACT_ADDRESS}</p>
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-black uppercase tracking-widest mb-1">Direct Line</h3>
+                        <p className="text-slate-400 text-sm">{CONTACT_PHONE}</p>
+                        <p className="text-slate-500 text-xs mt-1">Mon-Fri: 9am - 6pm</p>
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-black uppercase tracking-widest mb-1">Email</h3>
+                        <p className="text-slate-400 text-sm">support@djautofleet.com</p>
+                    </div>
+                </div>
+                {/* Decorative circle */}
+                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-red-600 rounded-full blur-3xl opacity-20"></div>
+            </div>
+
+            <div className="bg-white p-8 rounded-3xl shadow-lg border border-slate-100">
+                {contactSubmitted ? (
+                    <div className="text-center py-10 space-y-6">
+                        <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto"><CheckCircle2 size={32} /></div>
+                        <h3 className="text-2xl font-black uppercase">Message Sent</h3>
+                        <p className="text-slate-500">Thank you for contacting us. We will respond shortly.</p>
+                        <button onClick={() => setView('home')} className="text-red-600 font-bold text-sm uppercase hover:underline">Return Home</button>
+                    </div>
+                ) : (
+                    <form onSubmit={handleContactSubmit} className="space-y-6">
+                        <Input label="Your Name" value={contactData.name} onChange={e => setContactData({...contactData, name: e.target.value})} required />
+                        <Input label="Email Address" type="email" value={contactData.email} onChange={e => setContactData({...contactData, email: e.target.value})} required />
+                        <Input label="Phone Number" value={contactData.phone} onChange={e => setContactData({...contactData, phone: e.target.value})} required />
+                        <Select label="Subject" value={contactData.subject} onChange={e => setContactData({...contactData, subject: e.target.value})} options={[{value:'General Inquiry',label:'General Inquiry'},{value:'Rental Availability',label:'Rental Availability'},{value:'Maintenance Request',label:'Maintenance Request'},{value:'Billing',label:'Billing'}]} />
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                            <textarea 
+                                className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white h-32"
+                                value={contactData.message}
+                                onChange={e => setContactData({...contactData, message: e.target.value})}
+                                required
+                            />
+                        </div>
+                        <button type="submit" disabled={isSubmitting} className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-xl flex items-center justify-center gap-2">
+                            {isSubmitting ? <Loader2 className="animate-spin" /> : <>Send Message <Send size={16} /></>}
+                        </button>
+                    </form>
+                )}
+            </div>
+        </div>
+    </div>
+  );
+
+  const ProfileView = () => {
+    const [userApps, setUserApps] = useState<any[]>([]);
+    const [loadingApps, setLoadingApps] = useState(true);
+
+    useEffect(() => {
+        const fetchApps = async () => {
+            if (currentUser) {
+                const apps = await getUserApplications(currentUser.uid, currentUser.email);
+                setUserApps(apps);
+            }
+            setLoadingApps(false);
+        };
+        fetchApps();
+    }, [currentUser]);
+
+    if (!profile) return <div className="flex justify-center items-center h-screen"><Loader2 className="animate-spin" /></div>;
+
+    return (
+        <div className="max-w-4xl mx-auto py-12 px-6 animate-fadeIn">
+            <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden mb-8">
+                <div className="bg-slate-950 p-8 text-white flex justify-between items-center">
+                    <div>
+                        <h2 className="text-2xl font-black uppercase tracking-widest">My Profile</h2>
+                        <p className="text-slate-400 text-xs font-mono mt-1">ID: {profile.uid}</p>
+                    </div>
+                    <button onClick={handleLogout} className="text-red-500 hover:text-white transition-colors flex items-center gap-2 text-xs font-bold uppercase">
+                        <LogOut size={16} /> Logout
+                    </button>
+                </div>
+                <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Full Name</label>
+                        <p className="text-lg font-bold text-slate-900">{profile.fullName}</p>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Email Address</label>
+                        <p className="text-lg font-bold text-slate-900">{profile.email}</p>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Phone Number</label>
+                        <p className="text-lg font-bold text-slate-900">{profile.phone || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Account Role</label>
+                        <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold uppercase">{profile.role}</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3 className="text-xl font-black uppercase text-slate-900 mb-6 flex items-center gap-2"><LayoutDashboard size={20} /> My Applications</h3>
+            
+            {loadingApps ? (
+                <div className="text-center py-10"><Loader2 className="animate-spin mx-auto text-slate-300" /></div>
+            ) : userApps.length === 0 ? (
+                <div className="bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-10 text-center">
+                    <p className="text-slate-500 mb-4">You haven't submitted any applications yet.</p>
+                    <button onClick={() => setView('application')} className="bg-red-600 text-white px-6 py-3 rounded-xl font-black uppercase text-xs shadow-lg hover:bg-red-700">Start Application</button>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {userApps.map(app => (
+                        <div key={app.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div>
+                                <h4 className="font-black text-slate-900 text-lg">{app.carRequested}</h4>
+                                <p className="text-sm text-slate-500">Submitted on {app.createdAt?.seconds ? new Date(app.createdAt.seconds * 1000).toLocaleDateString() : (app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'N/A')}</p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <span className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider ${
+                                    app.status === 'approved' ? 'bg-green-100 text-green-700' : 
+                                    app.status === 'rejected' ? 'bg-red-100 text-red-700' : 
+                                    'bg-yellow-100 text-yellow-700'
+                                }`}>
+                                    {app.status}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
@@ -947,6 +1032,7 @@ export default function App() {
            <div className="text-center mb-12">
               <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900">DRIVER <span className="text-red-600">APPLICATION</span></h2>
               <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">Fleet Entry Protocol</p>
+              <p className="text-red-600 font-bold text-sm mt-2 flex items-center justify-center gap-2"><Phone size={14} /> Questions? Call {CONTACT_PHONE}</p>
            </div>
            
            <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100 p-8 md:p-16">
@@ -1112,6 +1198,10 @@ export default function App() {
             <div className="space-y-6">
                 <img src={LOGO_URL} className="h-10 opacity-70" alt="DJ Logo" />
                 <p className="text-sm font-medium text-slate-400 max-w-xs leading-relaxed">DJ Auto Rental San Antonio. Professional vehicle solutions for the gig economy.</p>
+                <div className="text-xs space-y-2">
+                    <p className="flex items-center gap-2"><MapPin size={12}/> {CONTACT_ADDRESS}</p>
+                    <p className="flex items-center gap-2"><Phone size={12}/> {CONTACT_PHONE}</p>
+                </div>
             </div>
             <div className="flex gap-16">
                 <div className="space-y-4">
@@ -1124,7 +1214,7 @@ export default function App() {
             </div>
         </div>
         <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-slate-900 flex justify-between items-center text-[9px] font-black uppercase tracking-[0.2em] text-slate-700">
-            <p>© 2025 DJ AUTO RENTAL SAN ANTONIO.</p>
+            <p>© 2026 DJ AUTO RENTAL.</p>
             <div className="flex gap-8"><span>Privacy</span><span>Terms</span></div>
         </div>
       </footer>
