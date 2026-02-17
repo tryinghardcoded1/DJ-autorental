@@ -4,11 +4,11 @@ import {
   INITIAL_DATA, 
   FormData, 
   ContactFormData, 
-  UserProfile,
-  Vehicle,
-  SmsTemplate,
-  EmailTemplate,
-  SystemSettings
+  UserProfile, 
+  Vehicle, 
+  SmsTemplate, 
+  EmailTemplate, 
+  SystemSettings 
 } from './types';
 import { StepWizard } from './components/StepWizard';
 import { Input, Select, FileUpload, Checkbox } from './components/InputFields';
@@ -18,25 +18,25 @@ import {
   submitApplication, 
   submitContactInquiry, 
   getUserProfile, 
-  updateUserProfile,
-  checkAdminRole,
-  getApplications,
-  updateApplicationStatus,
-  updateApplicationData,
-  getUserApplications,
-  getVehicles,
-  addVehicle,
-  updateVehicle,
-  deleteVehicle,
-  getAllUsers,
-  updateUserRole,
-  deleteUser,
-  getSmsTemplates,
-  saveSmsTemplate,
-  getEmailTemplates,
-  saveEmailTemplate,
-  getSystemSettings,
-  saveSystemSettings
+  updateUserProfile, 
+  checkAdminRole, 
+  getApplications, 
+  updateApplicationStatus, 
+  updateApplicationData, 
+  getUserApplications, 
+  getVehicles, 
+  addVehicle, 
+  updateVehicle, 
+  deleteVehicle, 
+  getAllUsers, 
+  updateUserRole, 
+  deleteUser, 
+  getSmsTemplates, 
+  saveSmsTemplate, 
+  getEmailTemplates, 
+  saveEmailTemplate, 
+  getSystemSettings, 
+  saveSystemSettings 
 } from './services/submissionService';
 import { auth as firebaseAuth } from './lib/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -47,32 +47,32 @@ import {
   Mail, 
   Phone, 
   MapPin, 
-  Send,
-  LogOut,
-  ArrowUpRight,
-  User,
-  ShieldAlert,
-  Zap,
-  Shield,
-  Clock,
-  CheckCircle2,
-  ChevronRight,
-  LayoutDashboard,
-  FileText,
-  XCircle,
-  AlertCircle,
-  Plus,
-  Edit2,
-  Trash2,
-  Settings as SettingsIcon,
-  DollarSign,
-  Users,
-  MessageSquare,
-  Menu,
-  Save,
-  Lock,
-  Eye,
-  EyeOff
+  Send, 
+  LogOut, 
+  ArrowUpRight, 
+  User, 
+  ShieldAlert, 
+  Zap, 
+  Shield, 
+  Clock, 
+  CheckCircle2, 
+  ChevronRight, 
+  LayoutDashboard, 
+  FileText, 
+  XCircle, 
+  AlertCircle, 
+  Plus, 
+  Edit2, 
+  Trash2, 
+  Settings as SettingsIcon, 
+  DollarSign, 
+  Users, 
+  MessageSquare, 
+  Menu, 
+  Save, 
+  Lock, 
+  Eye, 
+  EyeOff 
 } from 'lucide-react';
 
 const LOGO_URL = "https://djautofleet.com/wp-content/uploads/2026/02/Untitled-design-e1770786148880.gif";
@@ -989,7 +989,7 @@ export default function App() {
                               currentFile={formData.proofOfIncome} 
                               accept="image/*,application/pdf"
                               maxSizeMB={5}
-                              tooltip="Upload screenshots of your weekly earnings profile from apps like DoorDash, Amazon Flex, Uber, or Lyft. We look for consistent weekly income."
+                              tooltip="Acceptable proof formats include screenshots of weekly earnings from platforms like DoorDash, Amazon Flex, Uber, or Lyft, ensuring a consistent weekly income."
                            />
                         </div>
                       </div>
