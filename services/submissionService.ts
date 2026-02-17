@@ -1,4 +1,3 @@
-
 import { 
   collection, 
   addDoc, 
@@ -9,7 +8,8 @@ import {
   getDocs, 
   updateDoc, 
   doc,
-  orderBy
+  orderBy,
+  where
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { db } from "../lib/firebase";
 import { FormData, ContactFormData, Vehicle, Lead, UserProfile } from "../types";
@@ -33,18 +33,23 @@ const isFirebaseActive = () => {
 /**
  * Driver Application Submission
  */
-export const submitApplication = async (data: FormData): Promise<{ success: boolean; message: string; id: string }> => {
+export const submitApplication = async (data: FormData, userId?: string): Promise<{ success: boolean; message: string; id: string }> => {
   if (!isFirebaseActive()) {
     const mockApps = getMockData('applications');
     const newId = "MOCK-APP-" + Date.now();
-    saveMockData('applications', [...mockApps, { ...data, id: newId, createdAt: new Date().toISOString() }]);
+    saveMockData('applications', [...mockApps, { ...data, userId, id: newId, status: "pending", createdAt: new Date().toISOString() }]);
     return { success: true, message: "Demo: App saved locally.", id: newId };
   }
 
   try {
     const { proofOfAddress, proofOfIncome, licenseFront, licenseBack, selfie, ...firestoreData } = data;
+    
+    // Clean undefined values
+    const cleanData = Object.entries(firestoreData).reduce((a, [k, v]) => (v === undefined ? a : { ...a, [k]: v }), {});
+
     const docRef = await addDoc(collection(db, "applications"), {
-      ...firestoreData,
+      ...cleanData,
+      userId: userId || null, // Link to auth user if exists
       status: "pending",
       createdAt: serverTimestamp(),
       source: "organic"
@@ -53,6 +58,30 @@ export const submitApplication = async (data: FormData): Promise<{ success: bool
   } catch (error) {
     console.error("Submit Error:", error);
     throw error;
+  }
+};
+
+/**
+ * Update Application Status (Admin)
+ */
+export const updateApplicationStatus = async (appId: string, status: 'approved' | 'rejected') => {
+  if (!isFirebaseActive()) {
+    const apps = getMockData('applications');
+    const idx = apps.findIndex((a: any) => a.id === appId);
+    if (idx !== -1) {
+      apps[idx].status = status;
+      saveMockData('applications', apps);
+    }
+    return true;
+  }
+
+  try {
+    const appRef = doc(db, "applications", appId);
+    await updateDoc(appRef, { status, updatedAt: serverTimestamp() });
+    return true;
+  } catch (error) {
+    console.error("Update Error:", error);
+    return false;
   }
 };
 
@@ -141,7 +170,7 @@ export const checkAdminRole = async (uid: string): Promise<boolean> => {
 };
 
 /**
- * Admin Data Fetching
+ * Data Fetching
  */
 export const getApplications = async (): Promise<any[]> => {
   if (!isFirebaseActive()) return getMockData('applications');
@@ -150,6 +179,30 @@ export const getApplications = async (): Promise<any[]> => {
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (e) {
+    return [];
+  }
+};
+
+export const getUserApplications = async (userId: string, email: string): Promise<any[]> => {
+  if (!isFirebaseActive()) {
+     const apps = getMockData('applications');
+     return apps.filter((a: any) => a.userId === userId || a.email === email);
+  }
+  
+  try {
+    // Try to find by userId first
+    let q = query(collection(db, "applications"), where("userId", "==", userId));
+    let querySnapshot = await getDocs(q);
+    
+    // If empty, try fallback to email (for legacy apps)
+    if (querySnapshot.empty && email) {
+        q = query(collection(db, "applications"), where("email", "==", email));
+        querySnapshot = await getDocs(q);
+    }
+
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.error(e);
     return [];
   }
 };
