@@ -14,6 +14,7 @@ import {
   where
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { db } from "../lib/firebase";
+import { supabase } from "../lib/supabase";
 import { FormData, ContactFormData, Vehicle, Lead, UserProfile, SmsTemplate, EmailTemplate, SystemSettings } from "../types";
 
 // Helper for Mock Persistence
@@ -266,6 +267,63 @@ export const sendSmsConfirmation = async (phone: string, name: string, car: stri
 // --- APPLICATION SERVICES ---
 
 export const submitApplication = async (data: FormData, userId?: string): Promise<{ success: boolean; message: string; id: string }> => {
+  // 1. SUPABASE SUBMISSION (With Vehicle Details)
+  try {
+    // Fetch full vehicle details to store a snapshot
+    let vehicleSnapshot = {};
+    if (data.selectedVehicleId) {
+        const vehicles = await getVehicles();
+        const v = vehicles.find(veh => veh.id === data.selectedVehicleId);
+        if (v) {
+            vehicleSnapshot = {
+                vehicle_make: v.make,
+                vehicle_model: v.model,
+                vehicle_year: v.year,
+                vehicle_image_url: v.imageUrl,
+                weekly_rent: v.weeklyRent
+            };
+        }
+    }
+
+    const { error } = await supabase.from('bookings').insert([{
+        status: 'pending',
+        full_name: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        dob: data.dob,
+        address: data.address,
+        license_number: data.licenseNumber,
+        
+        // Vehicle Snapshot
+        vehicle_id: data.selectedVehicleId || '',
+        ...vehicleSnapshot,
+        
+        // Extended Form Data
+        rental_program: data.rentalProgram,
+        target_platform: data.targetPlatform,
+        usage_type: data.usageType,
+        start_date: data.startDate,
+        end_date: data.endDate,
+        payment_method: data.paymentMethod,
+        
+        // Insurance & History
+        has_insurance: data.hasInsurance,
+        insurance_company: data.insuranceCompany,
+        policy_number: data.policyNumber,
+        history_accidents: data.historyAccidents,
+        history_dui: data.historyDUI,
+        history_suspension: data.historySuspension,
+        
+        user_id: userId || null,
+        source: 'organic'
+    }]);
+
+    if (error) console.error("Supabase Booking Error:", error);
+  } catch (err) {
+    console.error("Supabase Submission Failed:", err);
+  }
+
+  // 2. FIREBASE SUBMISSION (Fallback/Legacy)
   if (!isFirebaseActive()) {
     const mockApps = getMockData('applications');
     const newId = "MOCK-APP-" + Date.now();
@@ -279,8 +337,6 @@ export const submitApplication = async (data: FormData, userId?: string): Promis
 
   try {
     const { proofOfAddress, proofOfIncome, licenseFront, licenseBack, selfie, ...firestoreData } = data;
-    
-    // Clean undefined values
     const cleanData = Object.entries(firestoreData).reduce((a, [k, v]) => (v === undefined ? a : { ...a, [k]: v }), {});
 
     const docRef = await addDoc(collection(db, "applications"), {
@@ -347,21 +403,48 @@ export const updateApplicationStatus = async (appId: string, status: 'approved' 
 };
 
 export const submitContactInquiry = async (data: ContactFormData): Promise<{ success: boolean; message: string }> => {
-  if (!isFirebaseActive()) {
-    const mockLeads = getMockData('leads');
-    saveMockData('leads', [...mockLeads, { ...data, id: Date.now().toString(), createdAt: new Date().toISOString() }]);
-    return { success: true, message: "Demo: Lead saved locally." };
-  }
-
   try {
-    await addDoc(collection(db, "leads"), {
-      ...data,
-      source: "website_contact",
-      createdAt: serverTimestamp()
-    });
+    // Attempt Supabase submission (Table: leads)
+    const { error } = await supabase
+      .from('leads')
+      .insert([
+        { 
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          subject: data.subject,
+          message: data.message,
+          source: 'website_contact'
+        }
+      ]);
+
+    if (error) {
+        console.error("Supabase Error:", error);
+        throw error;
+    }
+
     return { success: true, message: "Inquiry received." };
+
   } catch (error) {
-    throw error;
+    console.error("Supabase Submission Failed, trying Firestore fallback...", error);
+    
+    // Fallback to Firestore/Mock
+    if (!isFirebaseActive()) {
+        const mockLeads = getMockData('leads');
+        saveMockData('leads', [...mockLeads, { ...data, id: Date.now().toString(), createdAt: new Date().toISOString() }]);
+        return { success: true, message: "Demo: Lead saved locally." };
+    }
+
+    try {
+        await addDoc(collection(db, "leads"), {
+        ...data,
+        source: "website_contact",
+        createdAt: serverTimestamp()
+        });
+        return { success: true, message: "Inquiry received (Firebase)." };
+    } catch (fbError) {
+        throw fbError;
+    }
   }
 };
 
@@ -430,6 +513,31 @@ export const checkAdminRole = async (uid: string, email?: string | null): Promis
 };
 
 export const getApplications = async (): Promise<any[]> => {
+  // Try fetching from Supabase 'bookings' first
+  try {
+      const { data, error } = await supabase
+          .from('bookings')
+          .select('*')
+          .order('created_at', { ascending: false });
+      
+      if (!error && data) {
+          // Map Supabase 'bookings' columns to the shape the Admin UI expects
+          return data.map((b: any) => ({
+             id: b.id,
+             fullName: b.full_name,
+             email: b.email,
+             phone: b.phone,
+             carRequested: `${b.vehicle_year || ''} ${b.vehicle_make || ''} ${b.vehicle_model || ''}`.trim(),
+             rentalProgram: b.rental_program,
+             status: b.status,
+             createdAt: { seconds: new Date(b.created_at).getTime() / 1000 }, // Mock Firestore Timestamp
+             vehicleImage: b.vehicle_image_url
+          }));
+      }
+  } catch (e) {
+      console.warn("Supabase Fetch Failed, falling back to Firestore", e);
+  }
+
   if (!isFirebaseActive()) return getMockData('applications');
   try {
     const q = query(collection(db, "applications"), orderBy("createdAt", "desc"));
@@ -463,6 +571,29 @@ export const getUserApplications = async (userId: string, email: string): Promis
 };
 
 export const getLeads = async (): Promise<Lead[]> => {
+  // Try Supabase 'leads' table
+  try {
+      const { data, error } = await supabase
+          .from('leads')
+          .select('*')
+          .order('created_at', { ascending: false });
+      
+      if (!error && data) {
+          return data.map((item: any) => ({
+              id: item.id?.toString() || Math.random().toString(),
+              name: item.name,
+              phone: item.phone,
+              email: item.email,
+              subject: item.subject,
+              message: item.message,
+              source: item.source || 'supabase',
+              createdAt: item.created_at
+          }));
+      }
+  } catch (e) {
+      console.warn("Supabase Fetch Failed, falling back to Firestore/Mock", e);
+  }
+
   if (!isFirebaseActive()) return getMockData('leads');
   try {
     const q = query(collection(db, "leads"), orderBy("createdAt", "desc"));
