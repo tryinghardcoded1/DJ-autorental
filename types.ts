@@ -29,10 +29,36 @@ export interface Lead {
 
 export interface Vehicle {
   id: string;
-  name: string;
+  make: string;
+  model: string;
+  year: string;
+  color: string;
   vin: string;
+  plate: string;
   status: 'available' | 'rented' | 'maintenance';
-  assignedTo?: string;
+  weeklyRent: number;
+  imageUrl: string;
+  assignedTo?: string; // User ID
+  features?: string[];
+}
+
+export interface SmsTemplate {
+  id: string;
+  name: string;
+  content: string;
+}
+
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  content: string;
+}
+
+export interface SystemSettings {
+  twilioAccountSid: string;
+  twilioAuthToken: string;
+  twilioPhoneNumber: string;
 }
 
 export type ApplicationStatus = 'pending' | 'approved' | 'rejected' | 'contacted';
@@ -64,7 +90,12 @@ export interface FormData {
   selfie?: File | null;
   verificationStatus: VerificationStatus;
   verificationNotes: string;
-  carRequested: string;
+  
+  // Vehicle Selection
+  selectedVehicleId?: string; 
+  carRequested: string; // Keep for legacy/display
+  weeklyRent?: number;
+  
   vin: string;
   rentalProgram: 'rent' | 'rent-to-own' | '';
   startDate: string;
