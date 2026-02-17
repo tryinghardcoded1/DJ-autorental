@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { 
   INITIAL_DATA, 
@@ -238,8 +236,6 @@ export default function App() {
   const AdminView = () => {
     const [activeTab, setActiveTab] = useState<'applications' | 'users' | 'fleet' | 'sms' | 'email' | 'settings'>('applications');
     const [sidebarOpen, setSidebarOpen] = useState(true);
-
-    // Data States
     const [apps, setApps] = useState<any[]>([]);
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
     const [users, setUsers] = useState<UserProfile[]>([]);
@@ -247,20 +243,12 @@ export default function App() {
     const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
     const [systemSettings, setSystemSettings] = useState<SystemSettings>({ twilioAccountSid: '', twilioAuthToken: '', twilioPhoneNumber: '' });
     const [loading, setLoading] = useState(true);
-    
-    // Edit Modal State
     const [editingApp, setEditingApp] = useState<FormData | null>(null);
     const [isSaving, setIsSaving] = useState(false);
-
-    // Vehicle Form State
     const [editingVehicle, setEditingVehicle] = useState<Partial<Vehicle> | null>(null);
     const [showVehicleModal, setShowVehicleModal] = useState(false);
-
-    // Template Edit States
     const [editingSms, setEditingSms] = useState<SmsTemplate | null>(null);
     const [editingEmail, setEditingEmail] = useState<EmailTemplate | null>(null);
-    
-    // Settings State
     const [showToken, setShowToken] = useState(false);
 
     const loadData = async () => {
@@ -284,7 +272,6 @@ export default function App() {
 
     useEffect(() => { loadData(); }, []);
 
-    // Handlers
     const handleStatusUpdate = async (id: string, status: 'approved' | 'rejected') => {
         await updateApplicationStatus(id, status);
         loadData();
@@ -304,11 +291,9 @@ export default function App() {
         e.preventDefault();
         if(!editingVehicle) return;
         setIsSaving(true);
-        
         const vData: any = { ...editingVehicle };
         if (!vData.status) vData.status = 'available';
         if (!vData.imageUrl) vData.imageUrl = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800';
-
         if (vData.id) {
             await updateVehicle(vData.id, vData);
         } else {
@@ -372,7 +357,6 @@ export default function App() {
 
     return (
         <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
-            {/* Sidebar */}
             <div className={`bg-slate-950 text-white transition-all duration-300 flex flex-col ${sidebarOpen ? 'w-64' : 'w-20'} z-20 shadow-xl`}>
                 <div className="p-6 flex items-center justify-between">
                     {sidebarOpen && <span className="font-black text-lg tracking-wider">ADMIN</span>}
@@ -380,7 +364,6 @@ export default function App() {
                         <Menu size={20} />
                     </button>
                 </div>
-                
                 <nav className="flex-1 px-4 space-y-2 mt-4">
                     <button onClick={() => setActiveTab('applications')} className={`w-full flex items-center p-3 rounded-xl transition-all ${activeTab === 'applications' ? 'bg-red-600 shadow-lg shadow-red-900/20' : 'hover:bg-slate-800 text-slate-400'}`}>
                         <LayoutDashboard size={20} />
@@ -407,7 +390,6 @@ export default function App() {
                         {sidebarOpen && <span className="ml-3 font-bold text-xs uppercase tracking-wider">Settings</span>}
                     </button>
                 </nav>
-
                 <div className="p-4 border-t border-slate-900">
                     <button onClick={handleLogout} className="w-full flex items-center p-3 rounded-xl hover:bg-slate-800 text-slate-400 transition-all">
                         <LogOut size={20} />
@@ -415,8 +397,6 @@ export default function App() {
                     </button>
                 </div>
             </div>
-
-            {/* Main Content */}
             <div className="flex-1 overflow-y-auto p-8 relative">
                 <header className="flex justify-between items-center mb-8">
                     <div>
@@ -424,12 +404,10 @@ export default function App() {
                         <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Admin Console</p>
                     </div>
                 </header>
-
                 {loading ? (
                     <div className="flex justify-center items-center h-64"><Loader2 className="animate-spin text-slate-300" size={32} /></div>
                 ) : (
                     <>
-                        {/* APPLICATIONS TAB */}
                         {activeTab === 'applications' && (
                              <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                                 <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -463,11 +441,7 @@ export default function App() {
                                                         {app.createdAt?.seconds ? new Date(app.createdAt.seconds * 1000).toLocaleDateString() : 'Just now'}
                                                     </td>
                                                     <td className="p-4">
-                                                        <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide ${
-                                                            app.status === 'approved' ? 'bg-green-100 text-green-700' : 
-                                                            app.status === 'rejected' ? 'bg-red-100 text-red-700' : 
-                                                            'bg-yellow-100 text-yellow-700'
-                                                        }`}>
+                                                        <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wide ${app.status === 'approved' ? 'bg-green-100 text-green-700' : app.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
                                                             {app.status}
                                                         </span>
                                                     </td>
@@ -487,8 +461,6 @@ export default function App() {
                                 </div>
                             </div>
                         )}
-
-                        {/* USERS TAB */}
                         {activeTab === 'users' && (
                             <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                                 <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -533,8 +505,6 @@ export default function App() {
                                 </div>
                             </div>
                         )}
-
-                        {/* FLEET TAB */}
                         {activeTab === 'fleet' && (
                             <>
                                 <div className="flex justify-end mb-6">
@@ -572,8 +542,6 @@ export default function App() {
                                 </div>
                             </>
                         )}
-
-                        {/* SMS TEMPLATES TAB */}
                         {activeTab === 'sms' && (
                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                 <div className="space-y-4">
@@ -613,8 +581,6 @@ export default function App() {
                                 </div>
                              </div>
                         )}
-
-                         {/* EMAIL TEMPLATES TAB */}
                          {activeTab === 'email' && (
                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                 <div className="space-y-4">
@@ -655,8 +621,6 @@ export default function App() {
                                 </div>
                              </div>
                         )}
-
-                        {/* SETTINGS TAB */}
                         {activeTab === 'settings' && (
                             <div className="max-w-2xl mx-auto">
                                 <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
@@ -664,44 +628,18 @@ export default function App() {
                                         <SettingsIcon className="text-red-600" size={20} /> System Configuration
                                     </h3>
                                     <p className="text-slate-500 text-sm mb-6">Manage external API integrations and keys.</p>
-                                    
                                     <form onSubmit={handleSaveSettings} className="space-y-6">
                                         <div className="space-y-4">
                                             <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider border-b pb-2">Twilio SMS Gateway</h4>
-                                            
-                                            <Input 
-                                                label="Account SID" 
-                                                value={systemSettings.twilioAccountSid} 
-                                                onChange={e => setSystemSettings({...systemSettings, twilioAccountSid: e.target.value})} 
-                                                placeholder="AC..."
-                                            />
-                                            
+                                            <Input label="Account SID" value={systemSettings.twilioAccountSid} onChange={e => setSystemSettings({...systemSettings, twilioAccountSid: e.target.value})} placeholder="AC..." />
                                             <div className="relative">
-                                                <Input 
-                                                    label="Auth Token" 
-                                                    type={showToken ? "text" : "password"} 
-                                                    value={systemSettings.twilioAuthToken} 
-                                                    onChange={e => setSystemSettings({...systemSettings, twilioAuthToken: e.target.value})} 
-                                                    placeholder="Token..."
-                                                />
-                                                <button 
-                                                    type="button" 
-                                                    onClick={() => setShowToken(!showToken)}
-                                                    className="absolute right-3 top-9 text-slate-400 hover:text-slate-600"
-                                                >
+                                                <Input label="Auth Token" type={showToken ? "text" : "password"} value={systemSettings.twilioAuthToken} onChange={e => setSystemSettings({...systemSettings, twilioAuthToken: e.target.value})} placeholder="Token..." />
+                                                <button type="button" onClick={() => setShowToken(!showToken)} className="absolute right-3 top-9 text-slate-400 hover:text-slate-600">
                                                     {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
                                                 </button>
                                             </div>
-
-                                            <Input 
-                                                label="From Phone Number" 
-                                                value={systemSettings.twilioPhoneNumber} 
-                                                onChange={e => setSystemSettings({...systemSettings, twilioPhoneNumber: e.target.value})} 
-                                                placeholder="+12105550123"
-                                                tooltip="Must be a valid Twilio number capable of SMS"
-                                            />
+                                            <Input label="From Phone Number" value={systemSettings.twilioPhoneNumber} onChange={e => setSystemSettings({...systemSettings, twilioPhoneNumber: e.target.value})} placeholder="+12105550123" tooltip="Must be a valid Twilio number capable of SMS" />
                                         </div>
-
                                         <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                                             <p className="text-xs text-slate-400 italic">Keys are stored securely in Firestore.</p>
                                             <button type="submit" disabled={isSaving} className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest flex items-center gap-2 shadow-lg">
@@ -714,8 +652,6 @@ export default function App() {
                         )}
                     </>
                 )}
-
-                {/* MODALS (Edit App, Vehicle) - Reuse existing logic */}
                 {editingApp && (
                      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                         <div className="bg-white w-full max-w-2xl rounded-3xl p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -739,7 +675,6 @@ export default function App() {
                         </div>
                     </div>
                 )}
-
                  {showVehicleModal && (
                     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                         <div className="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl">
@@ -772,9 +707,7 @@ export default function App() {
 
   const HomeView = () => (
     <div className="animate-fadeIn">
-      {/* Hero Section */}
       <section className="relative bg-slate-950 text-white pt-32 pb-40 overflow-hidden flex flex-col items-center min-h-[80vh] justify-center">
-        {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
             <img 
                 src="https://www.cnet.com/a/img/resize/c15c1cd3ff178b55ea49c81017affac5024b45a1/hub/2014/06/09/d766dd95-3c1a-48b7-aba8-e1c9e0890a5f/2014fordfusionenergi-000.jpg?auto=webp&width=768" 
@@ -783,7 +716,6 @@ export default function App() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-900/40"></div>
         </div>
-
         <div className="max-w-7xl mx-auto px-6 relative z-20 text-center">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="inline-flex items-center gap-2 bg-red-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-red-900/30">
@@ -803,15 +735,12 @@ export default function App() {
           </div>
         </div>
       </section>
-
-      {/* Featured Fleet Section */}
       <section className="py-20 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-12">
             <h3 className="text-4xl font-black text-slate-950 uppercase tracking-tighter">FEATURED <span className="text-red-600">VEHICLES</span></h3>
             <p className="text-slate-500 mt-2">Ready for immediate pickup. Insurance included.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-            {/* Card 1: Kia Optima */}
             <div className="group bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-100 hover:shadow-2xl transition-all hover:-translate-y-1">
                 <div className="h-64 overflow-hidden relative">
                     <img src="https://www.thecubiclechick.com/wp-content/uploads/2014/04/2014-Kia-Optima-SX-Limited.jpg" alt="Kia Optima" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -828,8 +757,6 @@ export default function App() {
                     <button onClick={() => setView('application')} className="w-full bg-slate-950 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-red-600 transition-colors">Rent This Car</button>
                 </div>
             </div>
-
-            {/* Card 2: Ford Fusion */}
             <div className="group bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-100 hover:shadow-2xl transition-all hover:-translate-y-1">
                 <div className="h-64 overflow-hidden relative">
                     <img src="https://i.ytimg.com/vi/q49cMgR56RE/maxresdefault.jpg" alt="Ford Fusion" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -848,8 +775,6 @@ export default function App() {
             </div>
         </div>
       </section>
-
-      {/* Services Section */}
       <section className="py-24 px-6 max-w-7xl mx-auto bg-slate-50">
         <div className="text-center mb-16">
           <h3 className="text-4xl md:text-5xl font-black text-slate-950 uppercase tracking-tighter">OUR <span className="text-red-600">SERVICES</span></h3>
@@ -877,8 +802,8 @@ export default function App() {
   const ContactView = () => (
     <div className="max-w-6xl mx-auto mt-12 px-6 pb-20 animate-fadeIn flex-grow w-full">
       <div className="text-center mb-16">
-        <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900">CONTACT <span className="text-red-600">SUPPORT</span></h2>
-        <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">We're here to help 24/7</p>
+        <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900">DJ AUTO <span className="text-red-600">RENTAL</span></h2>
+        <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">Contact Support</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -983,10 +908,8 @@ export default function App() {
     return (
         <div className="max-w-5xl mx-auto mt-12 px-6 pb-20 animate-fadeIn flex-grow w-full">
             <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-200 overflow-hidden mb-8">
-                {/* Profile Header */}
                 <div className="bg-slate-950 p-10 md:p-14 text-white relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-red-600 rounded-full blur-[100px] opacity-20 -mr-20 -mt-20"></div>
-                    
                     <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
                         <div className="w-28 h-28 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center text-4xl font-black shadow-2xl border-4 border-slate-900 text-white">
                             {profile.fullName.charAt(0)}
@@ -1082,12 +1005,10 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
       <Nav />
-      
       {view === 'home' && <HomeView />}
       {view === 'contact' && <ContactView />}
       {view === 'admin' && <AdminView />}
       {view === 'profile' && <ProfileView />}
-
       {view === 'application' && (
         <main className="max-w-4xl mx-auto mt-12 px-4 flex-grow w-full pb-20 animate-fadeIn">
            <div className="text-center mb-12">

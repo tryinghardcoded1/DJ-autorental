@@ -1,4 +1,3 @@
-
 {
   "name": "dj-auto-rental",
   "version": "1.0.0",
@@ -9,8 +8,8 @@
   },
   "dependencies": {
     "lucide-react": "0.300.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0"
