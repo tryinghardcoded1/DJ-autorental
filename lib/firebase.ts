@@ -24,7 +24,7 @@ try {
   db = getFirestore(app);
   storage = getStorage(app);
 } catch (error) {
-  console.error("Firebase initialization error:", error);
+  console.error("Firebase initialization error (safe to ignore if using Supabase/Demo):", error);
 }
 
 export { auth, db, storage };
