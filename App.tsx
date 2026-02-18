@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   INITIAL_DATA, 
@@ -803,26 +804,27 @@ export default function App() {
     <div className="max-w-6xl mx-auto mt-12 px-6 pb-20 animate-fadeIn flex-grow w-full">
       <div className="text-center mb-16">
         <h2 className="text-4xl font-black uppercase tracking-tighter text-slate-900">DJ AUTO <span className="text-red-600">RENTAL</span></h2>
-        <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">Contact Support</p>
+        <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">Professional Fleet Support</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
         <div className="space-y-8">
-            <div className="bg-slate-950 text-white p-10 rounded-[2rem] shadow-xl">
-                <h3 className="text-xl font-black uppercase mb-8">Get in Touch</h3>
-                <div className="space-y-8 text-sm font-medium text-slate-300">
-                    <div className="flex items-center gap-6">
-                        <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-red-500 shadow-inner"><Phone size={24}/></div>
+            <div className="bg-slate-950 text-white p-10 rounded-[2rem] shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-red-600 rounded-full blur-[80px] opacity-20 -mr-20 -mt-20"></div>
+                <h3 className="text-xl font-black uppercase mb-8 relative z-10">Get in Touch</h3>
+                <div className="space-y-8 text-sm font-medium text-slate-300 relative z-10">
+                    <div className="flex items-center gap-6 group cursor-pointer">
+                        <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-red-500 shadow-inner group-hover:bg-red-600 group-hover:text-white transition-all"><Phone size={24}/></div>
                         <div>
                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Call Us</p>
-                            <a href={`tel:${CONTACT_PHONE.replace(/\D/g,'')}`} className="text-white text-lg font-bold hover:text-red-500 transition-colors">{CONTACT_PHONE}</a>
+                            <a href={`tel:${CONTACT_PHONE.replace(/\D/g,'')}`} className="text-white text-lg font-bold group-hover:text-red-500 transition-colors">{CONTACT_PHONE}</a>
                         </div>
                     </div>
-                    <div className="flex items-center gap-6">
-                        <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-red-500 shadow-inner"><Mail size={24}/></div>
+                    <div className="flex items-center gap-6 group cursor-pointer">
+                        <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-red-500 shadow-inner group-hover:bg-red-600 group-hover:text-white transition-all"><Mail size={24}/></div>
                         <div>
                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Email Us</p>
-                            <a href="mailto:support@djautofleet.com" className="text-white text-lg font-bold hover:text-red-500 transition-colors">support@djautofleet.com</a>
+                            <a href="mailto:support@djautofleet.com" className="text-white text-lg font-bold group-hover:text-red-500 transition-colors">support@djautofleet.com</a>
                         </div>
                     </div>
                     <div className="flex items-center gap-6">
@@ -848,7 +850,7 @@ export default function App() {
                 <div className="text-center py-16">
                     <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm"><CheckCircle2 size={40}/></div>
                     <h3 className="text-2xl font-black uppercase text-slate-900 mb-2">Message Sent</h3>
-                    <p className="text-slate-500 font-medium mb-8">Thank you for contacting us. We will respond within 24 hours.</p>
+                    <p className="text-slate-500 font-medium mb-8">Thank you for contacting DJ Auto Rental. We will respond within 24 hours.</p>
                     <button onClick={() => setContactSubmitted(false)} className="px-8 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-black uppercase tracking-widest transition-colors">
                         Send Another Message
                     </button>
@@ -858,12 +860,12 @@ export default function App() {
                     <div>
                         <h3 className="text-2xl font-black uppercase text-slate-900 mb-6">Send Message</h3>
                         <div className="space-y-5">
-                            <Input label="Your Name" value={contactData.name} onChange={e => setContactData({...contactData, name: e.target.value})} required placeholder="John Doe" />
-                            <Input label="Email Address" type="email" value={contactData.email} onChange={e => setContactData({...contactData, email: e.target.value})} required placeholder="john@example.com" />
-                            <Input label="Phone Number" value={contactData.phone} onChange={e => setContactData({...contactData, phone: e.target.value})} placeholder="(210) 555-0123" />
-                            <Select label="Topic" value={contactData.subject} onChange={e => setContactData({...contactData, subject: e.target.value})} options={[
+                            <Input label="Your Name" value={contactData.name} onChange={e => setContactData({...contactData, name: e.target.value})} required placeholder="Enter full name" />
+                            <Input label="Email Address" type="email" value={contactData.email} onChange={e => setContactData({...contactData, email: e.target.value})} required placeholder="email@address.com" />
+                            <Input label="Phone Number" value={contactData.phone} onChange={e => setContactData({...contactData, phone: e.target.value})} placeholder="(210) ..." />
+                            <Select label="Inquiry Topic" value={contactData.subject} onChange={e => setContactData({...contactData, subject: e.target.value})} options={[
                                 {value: 'General Inquiry', label: 'General Inquiry'},
-                                {value: 'Vehicle Availability', label: 'Vehicle Availability / Fleet'},
+                                {value: 'Vehicle Availability', label: 'Check Vehicle Availability'},
                                 {value: 'Maintenance', label: 'Maintenance Request'},
                                 {value: 'Billing', label: 'Billing / Payments'},
                                 {value: 'Emergency', label: 'Emergency / Accident'}
@@ -875,7 +877,7 @@ export default function App() {
                                     value={contactData.message}
                                     onChange={e => setContactData({...contactData, message: e.target.value})}
                                     required
-                                    placeholder="How can we help you?"
+                                    placeholder="How can we help you today?"
                                 ></textarea>
                             </div>
                         </div>
